@@ -20,6 +20,56 @@ typedef struct buffer{
     pagina paginasCarregadas[5];
 }buffer;
 
+class Gerenciador{
+public:
+    Gerenciador();
+    void IniciarPag(pagina &p);
+    void InserirRegistro(pagina &p, string entrada);
+    void apagarRegistro(pagina &p);
+    void lerArquivo(vector<pagina> &disco);
+    void printarDisco(vector<pagina> &disco);
+
+    void displayStats(){
+        cout << "Cache Hit: " << cacheHit << endl;
+        cout << "Cache Miss: " << cacheMiss << endl;
+    }
+
+    int Evict(int politica){
+        //implementar politicas de substituição
+    }
+
+    void Fetch(int page_id){
+        bool encontrado = false;
+        for(int i = 0; i < 5; i++){
+            if(buffer.paginasCarregadas[i].page_id == page_id){
+                cacheHit++;
+                encontrado = true;
+                break;
+            }
+        }
+        if(!encontrado){
+            cacheMiss++;
+
+            int livre = Evict(0);
+
+            for(int i = 0; i < this->disco.size() ; i++){
+                if(this->disco[i].page_id == page_id){
+
+                } 
+            }
+
+        }
+    }
+
+    
+
+private:
+    buffer buffer;
+    int cacheMiss = 0;
+    int cacheHit = 0;
+    vector<pagina> disco;
+
+};
 
 // ==========================================================================
 
@@ -34,7 +84,6 @@ void InserirRegistro(pagina &p, string entrada){
     p.dirty = true;
 
     p.dados = entrada;
-
 }
 
 void apagarRegistro(pagina &p){
@@ -61,10 +110,8 @@ void lerArquivo(vector<pagina> &disco){
         p.dados = linha;
         disco.push_back(p);
 
-        
     }
     cout << "Disco inciado com " << disco.size() << " paginas." << endl;
-    
 }
 
 
