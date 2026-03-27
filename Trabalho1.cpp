@@ -55,6 +55,7 @@ public:
             IniciarPag(p);
             cout << "." ;
 
+            linha.pop_back(); //remover a virgula
             p.dados = linha;
             disco.push_back(p);
 
