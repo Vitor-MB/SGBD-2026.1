@@ -29,6 +29,7 @@ typedef struct Buffer{
     int posFila = 0;
 }Buffer;
 
+//Essa é a classe responsável por gerenciar todo o nosso sistema
 class Gerenciador{
 public:
     
@@ -95,8 +96,8 @@ public:
     }
 
     int Evict(string politica){
-
         
+        //Se todos os slots estiverem livres, retorna o 0 já que é o slot 1
         if(contarSlotsLivres() == 5){
             return 0;
         }
@@ -108,14 +109,16 @@ public:
             slotEvict = buffer.posFila;
             buffer.posFila = (buffer.posFila + 1) % 5;
 
+            //Aleatorizador para o dirtybit que vai sair
+            if(rand() % 2 == 0){
+                buffer.paginasCarregadas[slotEvict].p.dirty = true;
+            }
+
+            //Se tiver sido modificado, printa o W
             if(buffer.paginasCarregadas[slotEvict].p.dirty){
-                for(size_t j = 0; j < disco.size(); j++){
-                    if(disco[j].page_id == buffer.paginasCarregadas[slotEvict].p.page_id){
-                        disco[j] = buffer.paginasCarregadas[slotEvict].p;
-                        buffer.paginasCarregadas[slotEvict].p.dirty = false;
-                        break;
-                    }
-                }
+                cout << endl << BLUE << "W" << RESET<< endl ;
+                cout << endl << "Pagina atualizada, escrevendo no disco..."<< endl << "Pressione ENTER para continuar" << endl;
+                cin.get();
             }
 
             buffer.paginasCarregadas[slotEvict].livre = true;
@@ -126,17 +129,22 @@ public:
 
     void Fetch(int page_id){
         bool encontrado = false;
+        //Procura se a pagina já está no buffer
+
         for(int i = 0; i < 5; i++){
             if( !buffer.paginasCarregadas[i].livre && buffer.paginasCarregadas[i].p.page_id == page_id ){
                 cacheHit++;
-                encontrado = true;
+                encontrado = true;  //Se já estiver ok e incrementa o cachehit 
                 break;
             }
         }
         if(!encontrado){
+            //Se nao, incrementa o cacheMiss -> procura a pagina no disco -> verifica se tem espaço livre -> se nao tiver encaixa de acordo com a politica do evict
+
             cacheMiss++;
             pagina *p = nullptr;
 
+            //Procurando no disco
             for(long long unsigned int i = 0; i < this->disco.size() ; i++){
                 if(this->disco[i].page_id == page_id){
                     p = &this->disco[i];
@@ -144,10 +152,12 @@ public:
                 } 
             }
 
+            //Se por acaso estiver procurando uma pagino com id inexistente
             if(p == nullptr){
                 throw runtime_error("Pagina nao encontrada no disco");
             }
 
+            //Verifica se tem slot livre no buffer
             for(int i = 0; i < 5; i++){
                 if(buffer.paginasCarregadas[i].livre){
                     buffer.paginasCarregadas[i].p = *p;
@@ -215,7 +225,7 @@ int main(){
     bool Interface = true;
 
     
-        cout << "INICIANDO SISTEMA" << endl;
+        cout <<endl << endl << "INICIANDO SISTEMA" << endl;
         g.lerArquivo("../bancodedados.csv");
 
         cout << "Pressione Enter para continuar..." << endl;
@@ -264,7 +274,7 @@ int main(){
                             break;
                         }
                         case 2: {
-                            cout << "Evicting pagina usando a politica " << pol << "..." << endl;
+                            cout <<endl << "Evicting pagina usando a politica " << pol << "..." << endl << "Pressione Enter para continuar..." << endl;
                             cin.ignore();
                             cin.get();
                             g.Evict(pol);
@@ -290,7 +300,7 @@ int main(){
                     }
                 
                 }catch(runtime_error &e){
-                    cerr << "Erro: " << e.what() << endl;
+                    cerr << RED << "Erro: " << e.what() << RESET << endl;
                     cout << "Pressione Enter para continuar..." << endl;
                     cin.ignore();
                     cin.get();
