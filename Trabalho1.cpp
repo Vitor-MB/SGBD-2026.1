@@ -5,9 +5,13 @@
 
 #include <fstream>
 
+#define RED "\033[31m"
+#define GREEN "\033[32m"
+#define BLUE "\033[34m"
+#define YELLOW "\033[33m"
+#define RESET "\033[0m"
+
 using namespace std;
-
-
 
 typedef struct pagina{
     int page_id;
@@ -22,6 +26,7 @@ typedef struct slot{
 
 typedef struct Buffer{
     slot paginasCarregadas[5];
+    int posFila = 0;
 }Buffer;
 
 class Gerenciador{
@@ -89,28 +94,33 @@ public:
         cout << "Cache Miss: " << cacheMiss << endl;
     }
 
-    int Evict(){
-        for(int i = 0; i < 5; i++){
-            if(buffer.paginasCarregadas[i].livre){
-                return i;
-            }
-        }
+    int Evict(string politica){
 
-        //politica de substituição: FIFO (COrrigir, ele n está como uma fila, só ta tirando o primeiro)
+        
+        if(contarSlotsLivres() == 5){
+            return 0;
+        }
 
         int slotEvict = 0;
 
-        if(buffer.paginasCarregadas[slotEvict].p.dirty){
-            for(size_t j = 0; j < disco.size(); j++){
-                if(disco[j].page_id == buffer.paginasCarregadas[slotEvict].p.page_id){
-                    disco[j] = buffer.paginasCarregadas[slotEvict].p;
-                    buffer.paginasCarregadas[slotEvict].p.dirty = false;
-                    break;
+        //politica de substituição: FIFO 
+        if(politica == "FIFO"){
+            slotEvict = buffer.posFila;
+            buffer.posFila = (buffer.posFila + 1) % 5;
+
+            if(buffer.paginasCarregadas[slotEvict].p.dirty){
+                for(size_t j = 0; j < disco.size(); j++){
+                    if(disco[j].page_id == buffer.paginasCarregadas[slotEvict].p.page_id){
+                        disco[j] = buffer.paginasCarregadas[slotEvict].p;
+                        buffer.paginasCarregadas[slotEvict].p.dirty = false;
+                        break;
+                    }
                 }
             }
+
+            buffer.paginasCarregadas[slotEvict].livre = true;
         }
 
-        buffer.paginasCarregadas[slotEvict].livre = true;
         return slotEvict;
     }
 
@@ -125,35 +135,51 @@ public:
         }
         if(!encontrado){
             cacheMiss++;
-
-            int livre = Evict(); //retorna o slot livre pra carregar a pagina
+            pagina *p = nullptr;
 
             for(long long unsigned int i = 0; i < this->disco.size() ; i++){
                 if(this->disco[i].page_id == page_id){
-                    buffer.paginasCarregadas[livre].p = this->disco[i];
-                    buffer.paginasCarregadas[livre].livre = false;
+                    p = &this->disco[i];
                     break;
                 } 
             }
+
+            if(p == nullptr){
+                throw runtime_error("Pagina nao encontrada no disco");
+            }
+
+            for(int i = 0; i < 5; i++){
+                if(buffer.paginasCarregadas[i].livre){
+                    buffer.paginasCarregadas[i].p = *p;
+                    buffer.paginasCarregadas[i].livre = false;
+                    return;
+                }
+            }
+
+            int livre = Evict("FIFO"); //retorna o slot livre pra carregar a pagina
+
+            buffer.paginasCarregadas[livre].p = *p;
+            buffer.paginasCarregadas[livre].livre = false;
+            return;
         }
     }
 
     void DisplayCache(){
         
         cout << "=======================================================" << endl << "BUFFER" << endl << "=======================================================" <<endl;
-        cout << "Slots livres: " << contarSlotsLivres() << endl;
+        cout << GREEN << "Slots livres: " << contarSlotsLivres() << endl << RESET;
         cout << "=======================================================" << endl << "PAGINAS" << endl;
 
         for(int i = 0; i<5; i++){
 
             if(buffer.paginasCarregadas[i].livre){
-                cout << "Slot " << i+1 << ": Livre" << endl;
+                cout << BLUE << "Slot " << i+1 << RESET << ":" << GREEN << " Livre" << RESET << endl;
                 cout << "=======================================================" << endl;
                 continue;
             }
 
-            cout << "Slot " << i+1 << ": " << endl;
-            cout << "Pagina " << buffer.paginasCarregadas[i].p.page_id << ": " << buffer.paginasCarregadas[i].p.dados << endl << "Modificado:" << (buffer.paginasCarregadas[i].p.dirty ? "Sim" : "Nao") << endl;
+            cout << BLUE << "Slot " << i+1 << ": " << RESET;
+            cout << "Pagina " << buffer.paginasCarregadas[i].p.page_id << endl << "Conteudo: " << buffer.paginasCarregadas[i].p.dados << endl << "Modificado:" << YELLOW << (buffer.paginasCarregadas[i].p.dirty ? " Sim" : " Nao") << RESET << endl;
             cout << "=======================================================" << endl;
         }
 
@@ -174,50 +200,104 @@ private:
 // ==========================================================================
 
 
-
-
-
-void InserirRegistro(pagina &p, string entrada){
-    cout<< "Inserindo registro na pagina" << p.page_id;
-    p.dirty = true;
-
-    p.dados = entrada;
-}
-
-void apagarRegistro(pagina &p){
-    cout<< "Apagando conteudo da pagina " << p.page_id;
-    p.dados = "";
-    p.dirty = true;
+void limparTela() {
+    #ifdef _WIN32
+    system("cls");
+    #else
+        system("clear");
+    #endif
 }
 
 
 int main(){
 
     Gerenciador g;
-    
+    bool Interface = true;
 
-    try{
+    
         cout << "INICIANDO SISTEMA" << endl;
         g.lerArquivo("../bancodedados.csv");
-        
-        g.DisplayCache();
-        g.Fetch(0);
-        g.Fetch(1);
-        g.Fetch(2);
-        g.Fetch(3);
-        g.Fetch(4);
-        g.DisplayCache();
 
-        g.Fetch(8);
-        g.DisplayCache();
-   
-        g.DisplayCache();
-        g.Fetch(8);
-        g.displayStats();
+        cout << "Pressione Enter para continuar..." << endl;
+        cin.get();
 
-    }catch(runtime_error &e){
-        cerr << "Erro: " << e.what() << endl;
-    }
+        string pol = "";
+
+        while(pol == ""){
+            limparTela();
+            cout << "Escolha a politica de substituicao: " << endl << "1. FIFO" << endl;
+            int opcao;
+            cin >> opcao;
+
+            switch(opcao){
+                case 1:
+                    pol = "FIFO";
+                    break;
+                default:
+                    cout << "Opcao invalida!" << endl;
+            }
+        }
+
+
+        while(Interface){
+                try{
+                    limparTela();
+
+                    int opcao;
+                    cout << GREEN << "Escolha uma opcao: " << RESET << endl;
+                    cout << "1. Procurar/Trazer Página para o Buffer (Fetch)" << endl;
+                    cout << "2. Apagar Pagina do Buffer (Evict)" << endl;
+                    cout << "3. Exibir cache (DisplayCache)" << endl;
+                    cout << "4. Exibir estatisticas (DisplayStats)" << endl;
+                    cout << "5. Sair" << endl;
+
+                    cin >> opcao;
+
+                    switch(opcao){
+                        case 1: {
+                            int page_id;
+                            cout << "Digite o ID da pagina: ";
+                            cin >> page_id;
+
+                            g.Fetch(page_id); 
+                        
+                            break;
+                        }
+                        case 2: {
+                            cout << "Evicting pagina usando a politica " << pol << "..." << endl;
+                            cin.ignore();
+                            cin.get();
+                            g.Evict(pol);
+                            break;
+                        }
+                        case 3:
+                            g.DisplayCache();
+                            cout << "Pressione Enter para continuar..." << endl;
+                            cin.ignore();
+                            cin.get();
+                            break;
+                        case 4:
+                            g.displayStats();
+                            cout << "Pressione Enter para continuar..." << endl;
+                            cin.ignore();
+                            cin.get();
+                            break;
+                        case 5:
+                            Interface = false;
+                            break;
+                        default:
+                            cout << "Opcao invalida!" << endl;
+                    }
+                
+                }catch(runtime_error &e){
+                    cerr << "Erro: " << e.what() << endl;
+                    cout << "Pressione Enter para continuar..." << endl;
+                    cin.ignore();
+                    cin.get();
+                }
+        }
+
+
 
 
     return 0;
