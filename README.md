@@ -17,14 +17,14 @@ O projeto segue uma organização modular para facilitar a manutenção:
 
 *   **`src/gerenciador/`**: Contém o `gerenciador.hpp`, o núcleo que coordena as operações, por meio da classe *gerenciador*.
 *   **`src/models/`**: Define as estruturas básicas:
-   *   `buffer.hpp`: Estrutura de controle do buffer (filas, tempos e bits de referência).
-   *   `pagina.hpp`: Definição da estrutura da página.
-   *   `slot.hpp`: Estrutura que envolve a página no buffer para controle de ocupação.
+    *   `buffer.hpp`: Estrutura de controle do buffer (filas, tempos e bits de referência).
+    *   `pagina.hpp`: Definição da estrutura da página.
+    *   `slot.hpp`: Estrutura que envolve a página no buffer para controle de ocupação.
 *   **`src/politicas/`**: Implementações individuais dos algoritmos:
-   *   `fifo.hpp`: First In First Out
-   *   `lru.hpp`: Least Recently Used
-   *   `mru.hpp`: Most Recently Used
-   *   `clock.hpp`: Algoritmo de segunda chance
+    *   `fifo.hpp`: First In First Out
+    *   `lru.hpp`: Least Recently Used
+    *   `mru.hpp`: Most Recently Used
+    *   `clock.hpp`: Algoritmo de segunda chance
 *   **`main.cpp`**: Ponto de entrada com a interface de usuário.
 *   **`bancodedados.csv`**: O arquivo que simula o disco rígido.
 
