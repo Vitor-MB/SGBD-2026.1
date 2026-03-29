@@ -5,7 +5,7 @@
 #include <iostream>
 #include <string>
 #include "../models/buffer.hpp"
-
+#include "printEvict.hpp"
 
 int evictCLOCK(Buffer &buffer){
      while(true){

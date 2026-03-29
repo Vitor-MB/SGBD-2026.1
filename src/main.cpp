@@ -69,7 +69,7 @@ int main(){
             
         }
 
-
+        //Essa parte é a interface do terminal para ajudar na execução do programa
         while(Interface){
                 try{
                     limparTela();

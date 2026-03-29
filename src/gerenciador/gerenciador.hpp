@@ -50,10 +50,12 @@ public:
     }
 
     void IniciarPag(Pagina &p){
+        //Coloca o page_id na pagina
         p.page_id = contadorId++;
     }
 
     void lerArquivo(string arquivo){
+        //Funcao para ler o csv e colocar as paginas no disco
         cout << "Abrindo arquivo: " << arquivo << endl << endl;
         ifstream file(arquivo);
         string linha;
@@ -78,14 +80,15 @@ public:
     }
 
     void printarDisco(){
-    for(size_t i = 0; i < disco.size(); i++){
-        Pagina &p = disco[i];
+        //Funcao para ver como está o Disco
+        for(size_t i = 0; i < disco.size(); i++){
+            Pagina &p = disco[i];
 
-        cout << "Pagina " << p.page_id << ": " << endl;
+            cout << "Pagina " << p.page_id << ": " << endl;
 
-        cout <<"conteudo: " << p.dados << endl << endl;
+            cout <<"conteudo: " << p.dados << endl << endl;
+        }
     }
-}
 
     int contarSlotsLivres(){
         int count = 0;
@@ -146,7 +149,7 @@ public:
             }
         }
         if(!encontrado){
-            //Se nao, incrementa o cacheMiss -> procura a Pagina no disco -> verifica se tem espaço livre -> se nao tiver encaixa de acordo com a politica do evict
+            //Se nao, incrementa o cacheMiss -> procura a Pagina no disco -> verifica se tem espaço livre -> se nao tiver, encaixa de acordo com a politica escolhida do evict
 
             cacheMiss++;
             Pagina *p = nullptr;
@@ -189,7 +192,7 @@ public:
         
         cout << "=======================================================" << endl << "BUFFER" << endl << "=======================================================" <<endl;
         cout << GREEN << "Slots livres: " << contarSlotsLivres() << endl << RESET;
-        cout << "=======================================================" << endl << "PaginaS" << endl;
+        cout << "=======================================================" << endl << "Paginas" << endl;
 
         for(int i = 0; i<5; i++){
 
