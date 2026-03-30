@@ -8,10 +8,10 @@
 
 
 int evictFIFO(Buffer &buffer) {
-    int slotEvict = buffer.posFila;
+    int slotEvict = buffer.indices.front();
 
     //Transforma em algo circular, que vai de 0 -> 4 
-    buffer.posFila = (buffer.posFila + 1) % 5;
+    buffer.indices.pop();
 
     checaModificao(buffer, slotEvict);
 

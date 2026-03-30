@@ -143,7 +143,7 @@ public:
 
                 buffer.refBit[i] = 1;
                 buffer.tempo[i] = buffer.contadorTempo;
-                
+                buffer.indices.push(i);
                 encontrado = true;  //Se já estiver ok e incrementa o cachehit 
                 break;
             }
@@ -173,6 +173,7 @@ public:
                     buffer.paginasCarregadas[i].p = *p;
                     buffer.refBit[i] = 1;
                     buffer.tempo[i] = buffer.contadorTempo;
+                    buffer.indices.push(i);
                     buffer.paginasCarregadas[i].livre = false;
                     return;
                 }
@@ -183,6 +184,7 @@ public:
             buffer.paginasCarregadas[livre].p = *p;
             buffer.refBit[livre] = 1;
             buffer.tempo[livre] = buffer.contadorTempo;
+            buffer.indices.push(livre);
             buffer.paginasCarregadas[livre].livre = false;
             return;
         }
