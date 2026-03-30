@@ -34,7 +34,7 @@ int main(){
 
     
         cout <<endl << endl << "INICIANDO SISTEMA" << endl;
-        g.lerArquivo("../bancodedados.csv");
+        g.lerArquivo("src/database/bancodedados.csv");
 
         cout << "Pressione Enter para continuar..." << endl;
         cin.get();

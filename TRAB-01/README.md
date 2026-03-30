@@ -65,5 +65,5 @@ O funcionamento do programa segue rigorosamente o ciclo abaixo, conforme impleme
 
 ## 6. 🛠️ Requisitos e Compilação
 *   **Linguagem:** C++.
-*   **Compilação:** O projeto possui um executável denominado `exe`.
+*   **Compilação:** O projeto possui um executável denominado `exe` para Linux Ubuntu, e um executável `trabalho01.exe` para Windows.
 
