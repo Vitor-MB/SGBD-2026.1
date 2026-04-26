@@ -22,7 +22,7 @@ struct Diretorio{
     Diretorio() : profundidadeGlobal(0), maxId(-1) {}
 
     string DiretorioFileName() const {
-        return "diretorio.txt";
+        return "../diretorio.txt";
     }
 
     bool ReadDiretorio() { //LE O DIRETÓRIO DO ARQUIVO PARA A MEMORIA
@@ -31,6 +31,7 @@ struct Diretorio{
             return false;
         }
         inFile >> profundidadeGlobal;
+        inFile >> maxId;
         bucketRefs.resize(1 << profundidadeGlobal);
         for (int i = 0; i < (1 << profundidadeGlobal); i++) {
             inFile >> bucketRefs[i];
@@ -45,6 +46,7 @@ struct Diretorio{
             return false;
         }
         outFile << profundidadeGlobal << endl;
+        outFile << maxId << endl;
         for (int i = 0; i < bucketRefs.size(); i++) {
             outFile << bucketRefs[i] << endl;
         }
@@ -69,7 +71,7 @@ struct Bucket{
     }
 
     string BucketFileName() const {
-        return "buckets/" + to_string(id) + ".txt";
+        return "../buckets/" + to_string(id) + ".txt";
     }
 
     bool ReadBucket() { //LE O BUCKET DO ARQUIVO PARA A MEMORIA
@@ -77,6 +79,8 @@ struct Bucket{
         if (!inFile.is_open()) {
             return false;
         }
+        
+
         inFile >> profundidadeLocal >> count;
         for (int i = 0; i < count && i < BUCKET_CAPACITY; i++) {
             inFile >> entries[i];
@@ -96,6 +100,19 @@ struct Bucket{
         }
         outFile.close();
         return true;
+    }
+
+    bool contem(int key) const{
+        for(int i = 0 ; i < count; i++){
+            if(entries[i] == key){
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    bool estaCheio() const{
+        return (count >= BUCKET_CAPACITY);
     }
     
 };
