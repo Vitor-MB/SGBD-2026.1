@@ -47,7 +47,7 @@ struct Diretorio{
         }
         outFile << profundidadeGlobal << endl;
         outFile << maxId << endl;
-        for (int i = 0; i < bucketRefs.size(); i++) {
+        for (size_t i = 0; i < bucketRefs.size(); i++) {
             outFile << bucketRefs[i] << endl;
         }
         outFile.close();

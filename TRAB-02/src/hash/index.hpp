@@ -88,6 +88,7 @@ pair<bool, pair<int,int>> splitBucket(Diretorio& dir, int idx){
     bool houveDuplicacao = false;
     pair<int,int> infoDup = {0, 0};
 
+
     // Se profundidade local == global, dobra o diretório antes de dividir
     if (oldBucket.profundidadeLocal == dir.profundidadeGlobal) {
         dobrarDiretorio(dir);
@@ -95,9 +96,10 @@ pair<bool, pair<int,int>> splitBucket(Diretorio& dir, int idx){
         // Registra: pg após duplicação e pl que o bucket terá após a divisão
         infoDup = {dir.profundidadeGlobal, oldBucket.profundidadeLocal + 1};
     }
-
     // Incrementa a profundidade local do bucket existente
     oldBucket.profundidadeLocal++;
+
+
 
     // Cria o novo bucket irmão com a mesma profundidade local
     int newBucketId = nextBucketId(dir);
@@ -106,15 +108,19 @@ pair<bool, pair<int,int>> splitBucket(Diretorio& dir, int idx){
     newBucket.profundidadeLocal = oldBucket.profundidadeLocal;
     newBucket.count = 0;
     memset(newBucket.entries, -1, sizeof(newBucket.entries));
+    //─────────────────────────────────────────────────────────
 
-    // Salva temporariamente as entradas do bucket antigo e o limpa
+
+
+    // Salva temporariamente as entradas do bucket antigo e o limpa para redistribuir
     int tempEntries[BUCKET_CAPACITY];
     int tempCount = oldBucket.count;
     memcpy(tempEntries, oldBucket.entries, sizeof(int) * tempCount);
     oldBucket.count = 0;
     memset(oldBucket.entries, -1, sizeof(oldBucket.entries));
 
-    // Redistribui: o bit na posição (profundidadeLocal - 1) decide o destino
+    // Redistribuir: o bit na posição (profundidadeLocal - 1) decide o destino
+    // (que é justamente o bit novo que vai diferenciar os buckets ex: era 10 e vai virar 10 e 11)
     for (int i = 0; i < tempCount; i++) {
         int key = tempEntries[i];
         int bit = (key >> (oldBucket.profundidadeLocal - 1)) & 1;
@@ -160,6 +166,7 @@ InclusaoResultado insertKey(int key){
         return resultado;
     }
 
+    //laço para tentar inserir a chave, caso necessita realiza o split (que pode gerar dobra do diretorio)
     while(true){
         int idx = dir.hashKey(key);
         int bucketId = dir.bucketRefs[idx];
@@ -188,7 +195,10 @@ InclusaoResultado insertKey(int key){
         }
 
         // Bucket cheio: divide e tenta novamente
-        auto [houveDup, infoDup] = splitBucket(dir, idx);
+        auto result = splitBucket(dir, idx);
+
+        bool houveDup = result.first;
+        pair<int,int> infoDup = result.second;
 
         //Se precisar duplicar, a gente registra a duplicacao para informar no out.txt
         if(houveDup){
@@ -200,6 +210,7 @@ InclusaoResultado insertKey(int key){
     }
 }
 
+//FUNÇÃO PARA REMOVER UMA KEY DO DIRETÓRIO
 RemocaoResultado removeKey(int key){
     RemocaoResultado resultado = {0, 0, 0};
 
@@ -238,7 +249,7 @@ RemocaoResultado removeKey(int key){
     
 }
 
-//FUNÇÃO PARA BUSCAR UMA KEY NO DIRETORIqtdEncontrada
+//FUNÇÃO PARA BUSCAR UMA KEY NO DIRETORIO
 BuscaResultado buscarKey(int key){
     BuscaResultado resultado = {0};
 
@@ -258,11 +269,42 @@ BuscaResultado buscarKey(int key){
     if(bucket.contem(key)){
         cout << "Chave " << key << " encontrada no bucket " << bucketId << "." << endl;
         resultado.qtdEncontrada = 1;
+        
+        //busca no bd a linha correspondente
+        ifstream file("../bd-trab2 - dataset.csv");
+        
+        if(!file.is_open()){
+            cerr << "Erro ao abrir dataset.csv" << endl;
+            return resultado;
+        }
+
+        string line;
+        int atual = 0;
+
+        while(getline(file, line)) {
+            if(atual == key) {
+                cout << "Linha correspondente à chave " << key << ": " << line << endl;
+                break;
+            }
+            atual++;
+        }
+
         return resultado;
     }
 
     cout << "A chave " << key << " nao foi encontrada" << endl;
     return resultado;
+}
+
+//=============== GUI PARA AJUDAR NO DEBUG E APRESENTAÇÃO DE COMO ESTÁ O DIRETÓRIO ==============
+
+//TRANSFORMAR NUMERAL EM BINÁRIO
+string toBinary(int num, int bits) {
+    string s = "";
+    for (int i = bits - 1; i >= 0; i--) {
+        s += ((num >> i) & 1) ? '1' : '0';
+    }
+    return s;
 }
 
 
@@ -273,16 +315,21 @@ void printIndex() {
         return;
     }
 
-    cout << "=== DIRETÓRIO ===" << endl;
+    cout << endl << "==== DIRETORIO ====" << endl;
     cout << "Profundidade Global: " << dir.profundidadeGlobal << endl;
     cout << "MaxId: " << dir.maxId << endl;
     int totalEntries = 1 << dir.profundidadeGlobal;
+
+    //COLOCA QUAL SÃO OS BITS MENOS SIGNIFICATIVOS CORRESPONDENTES A CADA BUCKET
+
     for (int i = 0; i < totalEntries; i++) {
-        cout << "  [" << i << "] -> Bucket " << dir.bucketRefs[i] << endl;
+        cout << "  [" << toBinary(i, dir.profundidadeGlobal) << "] -> Bucket " << dir.bucketRefs[i] << endl;
     }
 
-    cout << "\n=== BUCKETS ===" << endl;
-    // Imprime cada bucket único (evita repetição de buckets compartilhados)
+    cout << "\n==== BUCKETS ====" << endl;
+
+    // Imprime os BUCKETS únicos (evita repetição de buckets compartilhados (caso em que a prof local < prof global))
+
     vector<bool> printed(dir.maxId + 1, false);
     for (int i = 0; i <= dir.maxId; i++) {
         if (printed[i]) continue;

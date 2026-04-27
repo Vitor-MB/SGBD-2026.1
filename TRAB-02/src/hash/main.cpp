@@ -7,7 +7,7 @@
 using namespace std;
 
 int main() {
-    // ─ Abre os arquivos de entrada e saída ─
+    // Abre os arquivos de entrada e saída
     ifstream inFile("../in.txt");
     if (!inFile.is_open()) {
         cerr << "Erro: não foi possível abrir in.txt" << endl;
@@ -19,6 +19,7 @@ int main() {
         cerr << "Erro: não foi possível criar out.txt" << endl;
         return 1;
     }
+
 
     string firstLine;
     getline(inFile, firstLine);
@@ -32,13 +33,13 @@ int main() {
         return 1;
     }
 
-    // Replica a primeira linha no arquivo de saída
+    // Insere a primeira linha no arquivo de saída
     outFile << firstLine << "\n";
 
     //incializa o hash extensivel
     initIndexHash(pgInicial);
 
-    //  Processa cada operação do arquivo de entrada
+    // Processa cada operação do arquivo de entrada
     string line;
     while (getline(inFile, line)) {
         // Ignora linhas em branco
@@ -54,19 +55,19 @@ int main() {
                 for (auto& dup : res.duplicacoes) {
                     outFile << "DUP DIR:/" << dup.first << "," << dup.second << "\n";
                 }
-                outFile << "INC:" << key << "/"
-                        << res.pgFinal << "," << res.plFinal << "\n";
+
+                outFile << "INC:" << key << "/" << res.pgFinal << "," << res.plFinal << "\n";
+
             } else {
                 // Inserção falhou (chave duplicada); registra com profundidade global/profundidade local atuais
-                // Lê o diretório para obter prof global corrente
+                // Lê o diretório para obter prof global atual
                 Diretorio dir;
                 dir.ReadDiretorio();
                 int idx = dir.hashKey(key);
                 Bucket b;
                 b.id = dir.bucketRefs[idx];
                 b.ReadBucket();
-                outFile << "INC:" << key << "/"
-                        << dir.profundidadeGlobal << "," << b.profundidadeLocal << "\n";
+                outFile << "INC:" << key << "/" << dir.profundidadeGlobal << "," << b.profundidadeLocal << "\n";
             }
         }
         // Remoção: REM:x
@@ -74,9 +75,7 @@ int main() {
             int key = stoi(line.substr(4));
             RemocaoResultado res = removeKey(key);
 
-            outFile << "REM:" << key << "/"
-                    << res.qtdRemovida << ","
-                    << res.pgFinal << "," << res.plFinal << "\n";
+            outFile << "REM:" << key << "/" << res.qtdRemovida << "," << res.pgFinal << "," << res.plFinal << "\n";
         }
         // Busca: BUS:x
         else if (line.substr(0, 5) == "BUS=:") {
@@ -86,7 +85,7 @@ int main() {
             outFile << "BUS:" << key << "/" << res.qtdEncontrada << "\n";
         }
         else {
-            cerr << "Operação desconhecida: " << line << endl;
+            cout << "Operação desconhecida: " << line << endl;
         }
     }
 
@@ -99,5 +98,8 @@ int main() {
     outFile.close();
 
     cout << "Processamento concluído. Resultado em out.txt" << endl;
+
+    printIndex();
+    
     return 0;
 }
