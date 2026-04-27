@@ -22,7 +22,7 @@ struct Diretorio{
     Diretorio() : profundidadeGlobal(0), maxId(-1) {}
 
     string DiretorioFileName() const {
-        return "../diretorio.txt";
+        return "../hash/diretorio.txt";
     }
 
     bool ReadDiretorio() { //LE O DIRETÓRIO DO ARQUIVO PARA A MEMORIA
@@ -71,7 +71,7 @@ struct Bucket{
     }
 
     string BucketFileName() const {
-        return "../buckets/" + to_string(id) + ".txt";
+        return "../hash/buckets/" + to_string(id) + ".txt";
     }
 
     bool ReadBucket() { //LE O BUCKET DO ARQUIVO PARA A MEMORIA

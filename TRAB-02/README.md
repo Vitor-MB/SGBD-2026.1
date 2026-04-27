@@ -79,31 +79,50 @@ Exemplo de bucket:
 
 ## Rodar o programa
 
-Para rodar o programa, deve-se compilar e rodar o `main.cpp` em uma pasta `src/hash/output/`
+Para rodar o programa, deve-se compilar e rodar o `main.cpp` em uma pasta `src/output/`
 
-Caso não seja compilado em uma pasta `src/hash/output/` deve-se mudar o caminho das funções nos seguintes arquivos:
+Caso não seja compilado em uma pasta `src/output/` deve-se mudar o caminho das funções nos seguintes arquivos:
 
 #### hash.hpp
+```cpp
+//SUBSTITUIR
+string BucketFileName() const {
+        return "../hash/buckets/" + to_string(id) + ".txt";
+}
+
+//POR
+string BucketFileName() const {
+        return "hash/buckets/" + to_string(id) + ".txt";
+}
+
+
+//SUBSTITUIR
+string DiretorioFileName() const {
+        return "../hash/diretorio.txt";
+}
+
+//POR
+string DiretorioFileName() const {
+        return "hash/diretorio.txt";
+}
+
+
 ```
-//SUBSTITUIR
-string BucketFileName() const {
-        return "../buckets/" + to_string(id) + ".txt";
-}
 
-//POR
-string BucketFileName() const {
-        return "buckets/" + to_string(id) + ".txt";
-}
+#### main.cpp
 
+```cpp
 
 //SUBSTITUIR
-string DiretorioFileName() const {
-        return "../diretorio.txt";
-}
+ifstream inFile("../hash/in.txt");
 
 //POR
-string DiretorioFileName() const {
-        return "diretorio.txt";
-}
+ifstream inFile("hash/in.txt");
+
+//SUBSTITUIR
+ofstream outFile("../hash/out.txt");
+
+//POR
+ofstream outFile("hash/out.txt");
 
 ```

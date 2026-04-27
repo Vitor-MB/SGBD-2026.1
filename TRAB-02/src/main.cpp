@@ -2,19 +2,19 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include "index.hpp"
+#include "hash/index.hpp"
 
 using namespace std;
 
 int main() {
     // Abre os arquivos de entrada e saída
-    ifstream inFile("../in.txt");
+    ifstream inFile("../hash/in.txt");
     if (!inFile.is_open()) {
         cerr << "Erro: não foi possível abrir in.txt" << endl;
         return 1;
     }
 
-    ofstream outFile("../out.txt");
+    ofstream outFile("../hash/out.txt");
     if (!outFile.is_open()) {
         cerr << "Erro: não foi possível criar out.txt" << endl;
         return 1;

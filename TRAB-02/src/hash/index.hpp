@@ -36,9 +36,9 @@ void iniciaIndexHash(int initialGlobalDepth) {  //INICIALIZA O DIRETÓRIO E OS B
         int size = 1 << initialGlobalDepth;
         dir.bucketRefs.resize(size);
         #ifdef _WIN32
-            mkdir("../buckets");
+            mkdir("../hash/buckets");
         #else
-            mkdir("../buckets", 0755);
+            mkdir("../hash/buckets", 0755);
         #endif
 
         for (int i = 0; i < size; i++) {
@@ -270,7 +270,7 @@ BuscaResultado buscarKey(int key){
         resultado.qtdEncontrada = 1;
         
         //busca no bd a linha correspondente
-        ifstream file("../bd-trab2 - dataset.csv");
+        ifstream file("../database/bd-trab2 - dataset.csv");
         
         if(!file.is_open()){
             cerr << "Erro ao abrir dataset.csv" << endl;
