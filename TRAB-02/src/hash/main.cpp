@@ -37,7 +37,7 @@ int main() {
     outFile << firstLine << "\n";
 
     //incializa o hash extensivel
-    initIndexHash(pgInicial);
+    iniciaIndexHash(pgInicial);
 
     // Processa cada operação do arquivo de entrada
     string line;

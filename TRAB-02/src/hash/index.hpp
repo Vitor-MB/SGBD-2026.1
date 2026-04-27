@@ -30,7 +30,7 @@ struct BuscaResultado {
 };
 
 
-void initIndexHash(int initialGlobalDepth) {  //INICIALIZA O DIRETÓRIO E OS BUCKETS PARA O INDICE HASH EXTENSÍVEL
+void iniciaIndexHash(int initialGlobalDepth) {  //INICIALIZA O DIRETÓRIO E OS BUCKETS PARA O INDICE HASH EXTENSÍVEL
         Diretorio dir;
         dir.profundidadeGlobal = initialGlobalDepth;
         int size = 1 << initialGlobalDepth;
@@ -88,7 +88,7 @@ pair<bool, pair<int,int>> splitBucket(Diretorio& dir, int idx){
     bool houveDuplicacao = false;
     pair<int,int> infoDup = {0, 0};
 
-
+    
     // Se profundidade local == global, dobra o diretório antes de dividir
     if (oldBucket.profundidadeLocal == dir.profundidadeGlobal) {
         dobrarDiretorio(dir);
@@ -107,7 +107,6 @@ pair<bool, pair<int,int>> splitBucket(Diretorio& dir, int idx){
     newBucket.id = newBucketId;
     newBucket.profundidadeLocal = oldBucket.profundidadeLocal;
     newBucket.count = 0;
-    memset(newBucket.entries, -1, sizeof(newBucket.entries));
     //─────────────────────────────────────────────────────────
 
 
